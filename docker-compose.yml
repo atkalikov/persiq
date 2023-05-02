@@ -1,0 +1,29 @@
+version: "3.8"
+services:
+  homepage:
+    image: ghcr.io/benphelps/homepage:latest
+    container_name: homepage
+    volumes:
+      - $HOMEPAGE_ROOT/config:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro # (optional) For docker integrations
+    ports:
+      - 3000:3000
+
+  dashy:
+    image: lissy93/dashy
+    container_name: dashy
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - $PID
+      - $GID
+    volumes:
+      - $DASHY_ROOT/my-config.yml:/app/public/conf.yml
+    ports:
+      - 4000:80
+    healthcheck:
+      test: ['CMD', 'node', '/app/services/healthcheck']
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
